@@ -2,14 +2,17 @@ package services
 
 import (
 	"strings"
+	"time"
 	"wmw-user-api/dao"
 	"wmw-user-api/model"
-	"wmw-user-api/utility"
-	"wmw-user-api/utility/response"
-	"wmw-user-api/utility/wmwerrors"
 
+	"github.com/fxh111111/utility/jwt"
+	"github.com/fxh111111/utility/response"
+	"github.com/fxh111111/utility/wmwerrors"
 	"github.com/gin-gonic/gin"
 )
+
+const MaxAge = time.Hour
 
 type user struct{}
 
@@ -39,12 +42,12 @@ func (u *user) Login(c *gin.Context) {
 		return
 	}
 	var token string
-	token, err = utility.SignAToken(me.ID.Hex())
+	token, err = jwt.SignAToken(me.ID.Hex())
 	if err != nil {
 		response.ErrorExit(c, wmwerrors.Internal(err))
 		return
 	}
-	c.SetCookie("wmw-token", token, int(utility.MaxAge.Seconds()), "", "", true, true)
+	c.SetCookie("wmw-token", token, int(MaxAge.Seconds()), "", "", true, true)
 	response.DataExit(c, nil)
 }
 
@@ -62,12 +65,12 @@ func (u *user) Register(c *gin.Context) {
 		return
 	}
 	var token string
-	token, err = utility.SignAToken(id)
+	token, err = jwt.SignAToken(id)
 	if err != nil {
 		response.ErrorExit(c, wmwerrors.Internal(err))
 		return
 	}
-	c.SetCookie("wmw-token", token, int(utility.MaxAge.Seconds()), "", "", true, true)
+	c.SetCookie("wmw-token", token, int(MaxAge.Seconds()), "", "", true, true)
 	response.DataExit(c, nil)
 }
 

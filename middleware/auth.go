@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"wmw-user-api/utility"
-	"wmw-user-api/utility/response"
-	"wmw-user-api/utility/wmwerrors"
+	"github.com/fxh111111/utility/jwt"
+	"github.com/fxh111111/utility/response"
+	"github.com/fxh111111/utility/wmwerrors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ func Auth() gin.HandlerFunc {
 			return
 		}
 		var uid string
-		uid, err = utility.ParseToken(token)
+		uid, err = jwt.ParseToken(token)
 		if err != nil {
 			response.ErrorExit(c, wmwerrors.NoAuth(err))
 			return

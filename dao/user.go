@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"wmw-user-api/model"
-	"wmw-user-api/utility"
 
+	"github.com/golang/glog"
+
+	"github.com/fxh111111/utility/mongo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"gorm.io/gorm/logger"
+	mongodb "go.mongodb.org/mongo-driver/mongo"
 )
 
 type user struct {
@@ -27,9 +28,9 @@ func (u *user) FindByMobile(ctx context.Context, mobile string) (res *model.User
 		return nil, errors.New("dao user no init")
 	}
 	res = new(model.User)
-	err = utility.GetMongoClient().Database(u.db).Collection(u.collection).FindOne(ctx, bson.D{{"mobile", mobile}}).Decode(res)
+	err = mongo.GetMongoClient().Database(u.db).Collection(u.collection).FindOne(ctx, bson.D{{"mobile", mobile}}).Decode(res)
 	if err != nil {
-		logger.Default.Error(ctx, "find user by mobile failed", err)
+		glog.Error(ctx, "find user by mobile failed", err)
 		return nil, err
 	}
 	return res, nil
@@ -40,9 +41,9 @@ func (u *user) FindByEmail(ctx context.Context, email string) (res *model.User, 
 		return nil, errors.New("dao user no init")
 	}
 	res = new(model.User)
-	err = utility.GetMongoClient().Database(u.db).Collection(u.collection).FindOne(ctx, bson.D{{"email", email}}).Decode(res)
+	err = mongo.GetMongoClient().Database(u.db).Collection(u.collection).FindOne(ctx, bson.D{{"email", email}}).Decode(res)
 	if err != nil {
-		logger.Default.Error(ctx, "find user by email failed", err)
+		glog.Error(ctx, "find user by email failed", err)
 		return nil, err
 	}
 	return res, nil
@@ -58,9 +59,9 @@ func (u *user) FindByID(ctx context.Context, id string) (res *model.User, err er
 		return nil, err
 	}
 	res = new(model.User)
-	err = utility.GetMongoClient().Database(u.db).Collection(u.collection).FindOne(ctx, bson.D{{"_id", objID}}).Decode(res)
+	err = mongo.GetMongoClient().Database(u.db).Collection(u.collection).FindOne(ctx, bson.D{{"_id", objID}}).Decode(res)
 	if err != nil {
-		logger.Default.Error(ctx, "find user by id failed", err)
+		glog.Error(ctx, "find user by id failed", err)
 		return nil, err
 	}
 	return res, nil
@@ -70,10 +71,10 @@ func (u *user) Add(ctx context.Context, in *model.UserRegisterReq) (id string, e
 	if u == nil || in == nil {
 		return "", errors.New("dao user no init")
 	}
-	var res *mongo.InsertOneResult
-	res, err = utility.GetMongoClient().Database(u.db).Collection(u.collection).InsertOne(ctx, in)
+	var res *mongodb.InsertOneResult
+	res, err = mongo.GetMongoClient().Database(u.db).Collection(u.collection).InsertOne(ctx, in)
 	if err != nil {
-		logger.Default.Error(ctx, "insert user failed", err)
+		glog.Error(ctx, "insert user failed", err)
 		return "", err
 	}
 	return res.InsertedID.(primitive.ObjectID).Hex(), nil
